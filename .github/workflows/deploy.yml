@@ -42,11 +42,13 @@ jobs:
       - name: Deploy to server via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: 208.109.173.77
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ftp://208.109.173.77
+          username: hamza@3-amigos.co
+          password: Timbuktu1@
           local-dir: ./deploy/
           server-dir: /home/g0mbqxoz5uaj/public_html/portal/
+          protocol: ftp
+          port: 21
           exclude: |
             **/.git*
             **/.git*/**
