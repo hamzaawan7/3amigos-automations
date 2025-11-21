@@ -14,6 +14,16 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Karachi')
             ->dailyAt('19:00');
 
+        // Check unmarked attendance at 11 PM Pakistan time
+        $schedule->command('attendance:check-unmarked')
+            ->timezone('Asia/Karachi')
+            ->dailyAt('23:00');
+
+        // Check milestones at 11:59 PM Pakistan time
+        $schedule->command('milestones:check')
+            ->timezone('Asia/Karachi')
+            ->dailyAt('23:59');
+
         // Yearly leave reset Sept 1 at 00:10 Pakistan time
         $schedule->command('leave:reset-yearly')
             ->timezone('Asia/Karachi')
