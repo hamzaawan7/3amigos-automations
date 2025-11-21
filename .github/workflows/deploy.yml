@@ -34,26 +34,28 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
-      - name: Create deployment package
-        run: |
-          mkdir -p deploy
-          rsync -av --exclude='.git' --exclude='node_modules' --exclude='tests' --exclude='storage/logs/*' --exclude='.env' --exclude='deploy' . deploy/
-
-      - name: Deploy to server via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Deploy to server via SSH
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ftp://208.109.173.77
-          username: hamza@3-amigos.co
-          password: Timbuktu1@
-          local-dir: ./deploy/
-          server-dir: /home/g0mbqxoz5uaj/public_html/portal/
-          protocol: ftp
-          port: 21
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/storage/logs/*
-            **/.env
-            **/tests/**
+          host: 208.109.173.77
+          username: g0mbqxoz5uaj
+          password: Timbuktu123@@@
+          port: 22
+          source: "app,bootstrap,config,database,public,resources,routes,storage,artisan,composer.json,composer.lock,package.json,package-lock.json,vite.config.js,tailwind.config.js,postcss.config.js"
+          target: /home/g0mbqxoz5uaj/public_html/portal/
+          strip_components: 0
+          rm: false
+
+      - name: Run post-deployment commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 208.109.173.77
+          username: g0mbqxoz5uaj
+          password: Timbuktu123@@@
+          port: 22
+          script: |
+            cd /home/g0mbqxoz5uaj/public_html/portal
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
 
