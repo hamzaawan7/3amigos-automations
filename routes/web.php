@@ -10,7 +10,6 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\WorkExceptionController;
 use Inertia\Inertia;
 
-// Test route
 Route::get('/test', function () {
     return response()->json([
         'status' => 'OK',
