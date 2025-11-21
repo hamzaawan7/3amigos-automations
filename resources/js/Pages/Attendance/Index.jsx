@@ -20,6 +20,8 @@ export default function Index({ employee, todayAttendance, recentAttendances, at
     }, []);
 
     const currentHour = currentTime.getHours();
+    const currentDay = currentTime.getDay(); // 0 = Sunday, 6 = Saturday
+    const isWeekend = currentDay === 0 || currentDay === 6;
     const isBeforeElevenAM = currentHour < 11;
     const isBeforeSixPM = currentHour < 18;
 
@@ -239,7 +241,20 @@ export default function Index({ employee, todayAttendance, recentAttendances, at
                     ) : (
                         // Mark Attendance - Office or WFH
                         <div className="p-6">
-                            {isBeforeElevenAM ? (
+                            {isWeekend ? (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+                                    <svg className="h-16 w-16 text-blue-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p className="text-xl font-bold text-blue-800 mb-2">Weekend - Attendance Closed</p>
+                                    <p className="text-blue-600 mt-2">
+                                        Attendance can only be marked on weekdays (Monday - Friday)
+                                    </p>
+                                    <p className="text-blue-600 text-sm mt-2">
+                                        Enjoy your weekend! 🎉
+                                    </p>
+                                </div>
+                            ) : isBeforeElevenAM ? (
                                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
                                     <svg className="h-16 w-16 text-yellow-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

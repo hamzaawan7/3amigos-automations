@@ -108,6 +108,12 @@ class AttendanceController extends Controller
             return back()->with('error', 'No employee record found.');
         }
 
+        // Check if it's weekend (Saturday or Sunday)
+        $dayOfWeek = now()->dayOfWeek;
+        if ($dayOfWeek === Carbon::SATURDAY || $dayOfWeek === Carbon::SUNDAY) {
+            return back()->with('error', 'Attendance cannot be marked on weekends.');
+        }
+
         // Check if it's after 11 AM
         $currentHour = now()->hour;
         if ($currentHour < 11) {
