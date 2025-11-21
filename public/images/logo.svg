@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 50" width="180" height="50">
+  <!-- 3Amigos Text with Official Branding -->
+  <text x="25" y="35" font-family="'Poppins', sans-serif" font-size="28" font-weight="600" fill="#4154f1">
+    3Amigos
+  </text>
+
+  <!-- Icon/Circle Element (like website) -->
+  <circle cx="10" cy="25" r="8" fill="#4154f1" opacity="0.2"/>
+  <circle cx="10" cy="25" r="5" fill="#4154f1"/>
+</svg>
+

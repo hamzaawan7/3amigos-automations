@@ -1,0 +1,28 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite",
+        "serve": "php artisan serve",
+        "start": "concurrently \"npm run dev\" \"npm run serve\" --names \"VITE,LARAVEL\" --prefix-colors \"blue,green\""
+    },
+    "devDependencies": {
+        "@headlessui/react": "^2.2.9",
+        "@heroicons/react": "^2.2.0",
+        "autoprefixer": "10.4.19",
+        "axios": "^1.11.0",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.0",
+        "postcss": "^8.4.38",
+        "tailwindcss": "3.4.1",
+        "vite": "^7.0.7"
+    },
+    "dependencies": {
+        "@inertiajs/react": "^2.2.18",
+        "@vitejs/plugin-react": "^5.1.1",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0"
+    }
+}
