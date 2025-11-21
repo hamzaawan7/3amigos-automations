@@ -47,12 +47,12 @@ jobs:
             --exclude='.env' \
             --exclude='.github' \
             -e "ssh -o StrictHostKeyChecking=no" \
-            ./ g0mbqxoz5uaj@208.109.173.77:/home/g0mbqxoz5uaj/public_html/portal/
+            ./ g0mbqxoz5uaj@208.109.173.77:public_html/portal/
 
       - name: Run post-deployment commands
         run: |
           sshpass -p 'Timbuktu123@@@' ssh -o StrictHostKeyChecking=no g0mbqxoz5uaj@208.109.173.77 << 'EOF'
-            cd /home/g0mbqxoz5uaj/public_html/portal
+            cd public_html/portal
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
