@@ -1,4 +1,5 @@
 import { CheckIcon } from '@heroicons/react/24/outline';
+import { formatCurrency } from '@/utils/currency';
 
 export default function RewardTableRow({ reward, onMarkPaid }) {
     const renderPaymentStatus = () => {
@@ -62,7 +63,7 @@ export default function RewardTableRow({ reward, onMarkPaid }) {
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm font-bold text-green-600">
-                    {reward.currency} {reward.bonus_amount}
+                    {formatCurrency(reward.currency, reward.bonus_amount)}
                 </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">

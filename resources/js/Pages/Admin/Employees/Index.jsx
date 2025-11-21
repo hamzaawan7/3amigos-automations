@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { PlusIcon, EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { formatCurrency } from '@/utils/currency';
 
 export default function Index({ employees }) {
     return (
@@ -77,7 +78,7 @@ export default function Index({ employees }) {
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                                 {employee.salary ? (
                                                     <div>
-                                                        <div className="font-medium text-gray-900">{employee.currency} ${employee.salary}</div>
+                                                        <div className="font-medium text-gray-900">{formatCurrency(employee.currency, employee.salary)}</div>
                                                     </div>
                                                 ) : (
                                                     <span className="text-gray-400">Not set</span>

@@ -2,6 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { usePage } from '@inertiajs/react';
 import { getCustomStyles } from '@/utils/theme';
+import { formatCurrency } from '@/utils/currency';
 import { PlusIcon, PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function Index({ milestones }) {
@@ -98,7 +99,7 @@ export default function Index({ milestones }) {
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Bonus:</span>
                                         <span className="font-bold text-green-600">
-                                            {milestone.currency} {milestone.bonus_amount}
+                                            {formatCurrency(milestone.currency, milestone.bonus_amount)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between text-sm">

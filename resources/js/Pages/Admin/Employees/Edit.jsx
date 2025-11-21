@@ -1,6 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { formatDate } from '@/utils/dateFormat';
+import { formatCurrency } from '@/utils/currency';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 export default function Edit({ employee, activeLoan }) {
@@ -225,21 +226,21 @@ export default function Edit({ employee, activeLoan }) {
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">Total Loan Amount</label>
                                                     <p className="mt-1 text-lg font-bold text-gray-900">
-                                                        {activeLoan.currency} {parseFloat(activeLoan.total_amount).toLocaleString()}
+                                                        {formatCurrency(activeLoan.currency, activeLoan.total_amount)}
                                                     </p>
                                                 </div>
 
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">Monthly Deduction</label>
                                                     <p className="mt-1 text-lg font-bold text-red-600">
-                                                        {activeLoan.currency} {parseFloat(activeLoan.monthly_deduction).toLocaleString()}
+                                                        {formatCurrency(activeLoan.currency, activeLoan.monthly_deduction)}
                                                     </p>
                                                 </div>
 
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">Amount Paid</label>
                                                     <p className="mt-1 text-lg font-semibold text-green-600">
-                                                        {activeLoan.currency} {parseFloat(activeLoan.amount_paid).toLocaleString()}
+                                                        {formatCurrency(activeLoan.currency, activeLoan.amount_paid)}
                                                     </p>
                                                 </div>
 

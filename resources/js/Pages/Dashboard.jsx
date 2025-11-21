@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import BrandedButton from '@/Components/BrandedButton';
 import { formatDateWithDay } from '@/utils/dateFormat';
 import { getCustomStyles } from '@/utils/theme';
+import { formatCurrency } from '@/utils/currency';
 import {
     CalendarIcon,
     ClockIcon,
@@ -308,8 +309,7 @@ export default function Dashboard({ employee, stats, recent_attendances, rewards
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xl font-bold text-green-600">${milestone.bonus_amount}</p>
-                                            <p className="text-xs text-gray-500">{milestone.currency}</p>
+                                            <p className="text-xl font-bold text-green-600">{formatCurrency(milestone.currency, milestone.bonus_amount)}</p>
                                         </div>
                                     </div>
                                     <div className="space-y-2">

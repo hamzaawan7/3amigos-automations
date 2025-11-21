@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { formatDate } from '@/utils/dateFormat';
+import { formatCurrency } from '@/utils/currency';
 import { UserCircleIcon, KeyIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
 
 export default function Edit({ user, employee }) {
@@ -152,7 +153,7 @@ export default function Edit({ user, employee }) {
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">Salary</label>
                                                 <p className="mt-1 text-sm text-gray-900">
-                                                    {employee.currency} ${employee.salary} <span className="text-gray-500">({employee.salary_type})</span>
+                                                    {formatCurrency(employee.currency, employee.salary)} <span className="text-gray-500">({employee.salary_type})</span>
                                                 </p>
                                             </div>
 
@@ -209,28 +210,28 @@ export default function Edit({ user, employee }) {
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">Total Loan Amount</label>
                                                 <p className="mt-1 text-xl font-bold text-gray-900">
-                                                    {employee.active_loan.currency} {parseFloat(employee.active_loan.total_amount).toLocaleString()}
+                                                    {formatCurrency(employee.active_loan.currency, employee.active_loan.total_amount)}
                                                 </p>
                                             </div>
 
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">Monthly Deduction</label>
                                                 <p className="mt-1 text-xl font-bold text-red-600">
-                                                    -{employee.active_loan.currency} {parseFloat(employee.active_loan.monthly_deduction).toLocaleString()}
+                                                    -{formatCurrency(employee.active_loan.currency, employee.active_loan.monthly_deduction)}
                                                 </p>
                                             </div>
 
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">Amount Paid So Far</label>
                                                 <p className="mt-1 text-xl font-semibold text-green-600">
-                                                    {employee.active_loan.currency} {parseFloat(employee.active_loan.amount_paid).toLocaleString()}
+                                                    {formatCurrency(employee.active_loan.currency, employee.active_loan.amount_paid)}
                                                 </p>
                                             </div>
 
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">Remaining Balance</label>
                                                 <p className="mt-1 text-xl font-semibold text-orange-600">
-                                                    {employee.active_loan.currency} {parseFloat(employee.active_loan.remaining_amount).toLocaleString()}
+                                                    {formatCurrency(employee.active_loan.currency, employee.active_loan.remaining_amount)}
                                                 </p>
                                             </div>
 
