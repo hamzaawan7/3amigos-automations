@@ -34,28 +34,27 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
-      - name: Deploy to server via SSH
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: 208.109.173.77
-          username: g0mbqxoz5uaj
-          password: Timbuktu123@@@
-          port: 22
-          source: "app,bootstrap,config,database,public,resources,routes,storage,artisan,composer.json,composer.lock,package.json,package-lock.json,vite.config.js,tailwind.config.js,postcss.config.js"
-          target: /home/g0mbqxoz5uaj/public_html/portal/
-          strip_components: 0
-          rm: false
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Deploy to server via rsync
+        run: |
+          sshpass -p 'Timbuktu123@@@' rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='storage/logs/*' \
+            --exclude='.env' \
+            --exclude='.github' \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            ./ g0mbqxoz5uaj@208.109.173.77:/home/g0mbqxoz5uaj/public_html/portal/
 
       - name: Run post-deployment commands
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 208.109.173.77
-          username: g0mbqxoz5uaj
-          password: Timbuktu123@@@
-          port: 22
-          script: |
+        run: |
+          sshpass -p 'Timbuktu123@@@' ssh -o StrictHostKeyChecking=no g0mbqxoz5uaj@208.109.173.77 << 'EOF'
             cd /home/g0mbqxoz5uaj/public_html/portal
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+          EOF
 
