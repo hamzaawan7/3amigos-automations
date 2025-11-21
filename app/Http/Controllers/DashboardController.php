@@ -220,35 +220,97 @@ class DashboardController extends Controller
     private function adminDashboard()
     {
         $today = now()->toDateString();
+        $isWeekend = now()->dayOfWeek === 0 || now()->dayOfWeek === 6;
 
         // Total employees
         $totalEmployees = \App\Models\Employee::count();
 
-        // Today's attendance
+        // Today's attendance (only show if weekday)
         $todayAttendances = \App\Models\Attendance::where('date', $today)
             ->whereNotNull('check_in')
             ->count();
 
-        // Today's WFH (count from unified attendance table)
+        // Today's WFH
         $todayWFH = \App\Models\Attendance::where('date', $today)
             ->where('is_wfh', true)
             ->whereNotNull('check_in')
+            ->count();
+
+        // Today's Office
+        $todayOffice = \App\Models\Attendance::where('date', $today)
+            ->where('is_wfh', false)
+            ->whereNotNull('check_in')
+            ->count();
+
+        // Today's Late Arrivals
+        $todayLate = \App\Models\Attendance::where('date', $today)
+            ->where('is_late', true)
             ->count();
 
         // Present today
         $presentToday = $todayAttendances;
         $absentToday = $totalEmployees - $presentToday;
 
-        // This week stats
+        // This week stats (weekdays only)
         $weekStart = now()->startOfWeek();
+        $weekdayCount = 0;
+        $currentDate = $weekStart->copy();
+        while ($currentDate->lte(now())) {
+            if ($currentDate->isWeekday()) {
+                $weekdayCount++;
+            }
+            $currentDate->addDay();
+        }
+
         $weekAttendances = \App\Models\Attendance::where('date', '>=', $weekStart)
             ->whereNotNull('check_in')
             ->count();
 
+        $expectedWeekAttendances = $totalEmployees * $weekdayCount;
+        $weekAttendanceRate = $expectedWeekAttendances > 0
+            ? round(($weekAttendances / $expectedWeekAttendances) * 100, 1)
+            : 0;
+
+        // This month stats (weekdays only)
+        $monthStart = now()->startOfMonth();
+        $monthWeekdayCount = 0;
+        $currentDate = $monthStart->copy();
+        while ($currentDate->lte(now())) {
+            if ($currentDate->isWeekday()) {
+                $monthWeekdayCount++;
+            }
+            $currentDate->addDay();
+        }
+
+        $monthAttendances = \App\Models\Attendance::where('date', '>=', $monthStart)
+            ->whereNotNull('check_in')
+            ->count();
+
+        $expectedMonthAttendances = $totalEmployees * $monthWeekdayCount;
+        $monthAttendanceRate = $expectedMonthAttendances > 0
+            ? round(($monthAttendances / $expectedMonthAttendances) * 100, 1)
+            : 0;
+
         // Pending work exceptions
         $pendingExceptions = \App\Models\WorkException::where('status', 'pending')->count();
 
-        // Recent attendance activity
+        // Late arrivals this week
+        $weekLateCount = \App\Models\Attendance::where('date', '>=', $weekStart)
+            ->where('is_late', true)
+            ->count();
+
+        // Employees with active streaks
+        $topStreaks = \App\Models\Employee::where('current_streak', '>', 0)
+            ->orderBy('current_streak', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(fn($e) => [
+                'id' => $e->id,
+                'name' => $e->name,
+                'streak' => $e->current_streak,
+            ]);
+
+        // Recent attendance activity (last 10 check-ins)
         $recentActivity = \App\Models\Attendance::with('employee')
             ->whereNotNull('check_in')
             ->orderBy('date', 'desc')
@@ -257,8 +319,11 @@ class DashboardController extends Controller
             ->get()
             ->map(fn($a) => [
                 'employee_name' => $a->employee->name,
-                'date' => $a->date->format('Y-m-d'),
+                'date' => $a->date,
                 'check_in' => $a->check_in,
+                'is_wfh' => $a->is_wfh,
+                'is_late' => $a->is_late,
+                'late_by_minutes' => $a->late_by_minutes,
             ]);
 
         // Employees with low leave balance (< 3 days)
@@ -269,11 +334,13 @@ class DashboardController extends Controller
                 'id' => $e->id,
                 'name' => $e->name,
                 'leave_balance' => $e->leave_balance,
+                'annual_leave_quota' => $e->annual_leave_quota,
             ]);
 
-        // This month stats
-        $monthStart = now()->startOfMonth();
-        $monthAttendances = \App\Models\Attendance::where('date', '>=', $monthStart)
+        // WFH pending tasks today
+        $wfhPendingTasks = \App\Models\Attendance::where('date', $today)
+            ->where('is_wfh', true)
+            ->where('task_submitted', false)
             ->whereNotNull('check_in')
             ->count();
 
@@ -283,13 +350,23 @@ class DashboardController extends Controller
                 'present_today' => $presentToday,
                 'absent_today' => $absentToday,
                 'today_wfh' => $todayWFH,
+                'today_office' => $todayOffice,
+                'today_late' => $todayLate,
+                'wfh_pending_tasks' => $wfhPendingTasks,
                 'week_attendances' => $weekAttendances,
+                'week_attendance_rate' => $weekAttendanceRate,
+                'week_late_count' => $weekLateCount,
                 'month_attendances' => $monthAttendances,
+                'month_attendance_rate' => $monthAttendanceRate,
                 'pending_exceptions' => $pendingExceptions,
                 'attendance_rate_today' => $totalEmployees > 0 ? round(($presentToday / $totalEmployees) * 100, 1) : 0,
+                'is_weekend' => $isWeekend,
+                'weekday_count_this_week' => $weekdayCount,
+                'weekday_count_this_month' => $monthWeekdayCount,
             ],
             'recent_activity' => $recentActivity,
             'low_leave_balance' => $lowLeaveBalance,
+            'top_streaks' => $topStreaks,
         ]);
     }
 }

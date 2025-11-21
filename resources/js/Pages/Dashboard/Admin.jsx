@@ -14,7 +14,7 @@ import {
     ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 
-export default function Admin({ stats, recent_activity, low_leave_balance }) {
+export default function Admin({ stats, recent_activity, low_leave_balance, top_streaks }) {
     const { company, auth } = usePage().props;
     const customStyles = getCustomStyles(company);
 
@@ -25,6 +25,8 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
     };
 
     const rateColors = getAttendanceRateColor(stats.attendance_rate_today);
+    const weekRateColors = getAttendanceRateColor(stats.week_attendance_rate);
+    const monthRateColors = getAttendanceRateColor(stats.month_attendance_rate);
 
     return (
         <AppLayout>
@@ -41,6 +43,13 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
                 <p className="mt-1 text-sm text-gray-500">
                     Welcome back, {auth.user.name}
                 </p>
+                {stats.is_weekend && (
+                    <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full bg-blue-100 border border-blue-300">
+                        <span className="text-xs font-medium text-blue-800">
+                            📅 Weekend Mode - Attendance tracking paused
+                        </span>
+                    </div>
+                )}
             </div>
 
             {/* Quick Stats Grid */}
@@ -88,11 +97,17 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
                                             / {stats.total_employees}
                                         </div>
                                     </dd>
-                                    {stats.today_wfh > 0 && (
-                                        <dd className="text-xs text-gray-400 mt-1">
-                                            {stats.today_wfh} working from home
-                                        </dd>
-                                    )}
+                                    <dd className="text-xs text-gray-400 mt-1 space-y-0.5">
+                                        {stats.today_office > 0 && (
+                                            <div>🏢 {stats.today_office} office</div>
+                                        )}
+                                        {stats.today_wfh > 0 && (
+                                            <div>🏠 {stats.today_wfh} work from home</div>
+                                        )}
+                                        {stats.today_late > 0 && (
+                                            <div className="text-orange-500">⚠️ {stats.today_late} late arrivals</div>
+                                        )}
+                                    </dd>
                                 </dl>
                             </div>
                         </div>
@@ -147,21 +162,27 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
             </div>
 
             {/* Secondary Stats */}
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 mb-8">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-4 mb-8">
                 {/* This Week */}
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="px-4 py-5 sm:p-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-2">
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-1">This Week</h3>
-                                <p className="text-3xl font-bold" style={{ color: customStyles.primaryColor }}>
-                                    {stats.week_attendances}
+                                <h3 className="text-sm font-medium text-gray-500">This Week (Weekdays)</h3>
+                                <p className="text-3xl font-bold mt-1" style={{ color: weekRateColors.bg }}>
+                                    {stats.week_attendance_rate}%
                                 </p>
-                                <p className="text-sm text-gray-500 mt-1">Total check-ins</p>
                             </div>
                             <div className="p-3 rounded-full" style={{ backgroundColor: customStyles.primaryColor + '20' }}>
                                 <CalendarDaysIcon className="h-8 w-8" style={{ color: customStyles.primaryColor }} />
                             </div>
+                        </div>
+                        <div className="text-xs text-gray-500 space-y-1">
+                            <div>{stats.week_attendances} check-ins</div>
+                            <div>{stats.weekday_count_this_week} weekdays so far</div>
+                            {stats.week_late_count > 0 && (
+                                <div className="text-orange-500">{stats.week_late_count} late arrivals</div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -169,31 +190,53 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
                 {/* This Month */}
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="px-4 py-5 sm:p-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-2">
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-1">This Month</h3>
-                                <p className="text-3xl font-bold" style={{ color: customStyles.secondaryColor }}>
-                                    {stats.month_attendances}
+                                <h3 className="text-sm font-medium text-gray-500">This Month (Weekdays)</h3>
+                                <p className="text-3xl font-bold mt-1" style={{ color: monthRateColors.bg }}>
+                                    {stats.month_attendance_rate}%
                                 </p>
-                                <p className="text-sm text-gray-500 mt-1">Total check-ins</p>
                             </div>
                             <div className="p-3 rounded-full" style={{ backgroundColor: customStyles.secondaryColor + '20' }}>
                                 <ArrowTrendingUpIcon className="h-8 w-8" style={{ color: customStyles.secondaryColor }} />
                             </div>
                         </div>
+                        <div className="text-xs text-gray-500 space-y-1">
+                            <div>{stats.month_attendances} check-ins</div>
+                            <div>{stats.weekday_count_this_month} weekdays so far</div>
+                        </div>
                     </div>
                 </div>
+
+                {/* WFH Pending Tasks */}
+                {stats.wfh_pending_tasks > 0 && (
+                    <div className="bg-white overflow-hidden shadow rounded-lg border-l-4 border-orange-400">
+                        <div className="px-4 py-5 sm:p-6">
+                            <div className="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 className="text-sm font-medium text-gray-500">WFH Tasks Pending</h3>
+                                    <p className="text-3xl font-bold text-orange-600 mt-1">
+                                        {stats.wfh_pending_tasks}
+                                    </p>
+                                </div>
+                                <div className="p-3 rounded-full bg-orange-100">
+                                    <HomeIcon className="h-8 w-8 text-orange-600" />
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-500">Awaiting task submission</p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Pending Exceptions */}
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="px-4 py-5 sm:p-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-2">
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-1">Pending</h3>
-                                <p className="text-3xl font-bold text-yellow-600">
+                                <h3 className="text-sm font-medium text-gray-500">Pending Requests</h3>
+                                <p className="text-3xl font-bold text-yellow-600 mt-1">
                                     {stats.pending_exceptions}
                                 </p>
-                                <p className="text-sm text-gray-500 mt-1">Work exceptions</p>
                             </div>
                             <div className="p-3 rounded-full bg-yellow-100">
                                 <ExclamationTriangleIcon className="h-8 w-8 text-yellow-600" />
@@ -202,7 +245,7 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
                         {stats.pending_exceptions > 0 && (
                             <Link
                                 href="/admin/work-exceptions"
-                                className="mt-3 text-sm font-medium inline-flex items-center"
+                                className="text-xs font-medium inline-flex items-center"
                                 style={{ color: customStyles.primaryColor }}
                             >
                                 Review now →
@@ -248,6 +291,42 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Top Performers */}
+                {top_streaks && top_streaks.length > 0 && (
+                    <div className="bg-gradient-to-br from-orange-50 to-red-50 shadow-lg rounded-lg overflow-hidden border-2 border-orange-300">
+                        <div className="px-6 py-4 border-b border-orange-200 bg-orange-100">
+                            <div className="flex items-center">
+                                <FireIcon className="h-6 w-6 text-orange-600 mr-2" />
+                                <h3 className="text-lg font-semibold text-orange-900">
+                                    Top Performers (Active Streaks)
+                                </h3>
+                            </div>
+                        </div>
+                        <div className="divide-y divide-orange-100">
+                            {top_streaks.map((employee, index) => (
+                                <div key={employee.id} className="px-6 py-4 hover:bg-white transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <span className="text-2xl mr-3">
+                                                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🔥'}
+                                            </span>
+                                            <Link
+                                                href={`/employees/${employee.id}`}
+                                                className="text-sm font-medium text-gray-900 hover:underline"
+                                            >
+                                                {employee.name}
+                                            </Link>
+                                        </div>
+                                        <span className="px-3 py-1 text-sm font-bold rounded-full bg-orange-200 text-orange-900">
+                                            {employee.streak} days 🔥
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Recent Activity */}
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200" style={{ backgroundColor: customStyles.primaryColor + '10' }}>
@@ -255,17 +334,33 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
                             Recent Check-ins
                         </h3>
                     </div>
-                    <div className="divide-y divide-gray-200">
+                    <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
                         {recent_activity.length > 0 ? (
                             recent_activity.map((activity, index) => (
                                 <div key={index} className="px-6 py-4 hover:bg-gray-50 transition-colors">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
-                                            <CheckCircleIcon className="h-5 w-5 text-green-500 mr-3" />
+                                            {activity.is_late ? (
+                                                <ClockIcon className="h-5 w-5 text-orange-500 mr-3" />
+                                            ) : (
+                                                <CheckCircleIcon className="h-5 w-5 text-green-500 mr-3" />
+                                            )}
                                             <div>
-                                                <p className="text-sm font-medium text-gray-900">
-                                                    {activity.employee_name}
-                                                </p>
+                                                <div className="flex items-center">
+                                                    <p className="text-sm font-medium text-gray-900">
+                                                        {activity.employee_name}
+                                                    </p>
+                                                    {activity.is_wfh && (
+                                                        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                                                            WFH
+                                                        </span>
+                                                    )}
+                                                    {activity.is_late && (
+                                                        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                                                            Late {activity.late_by_minutes}m
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-xs text-gray-500">
                                                     {formatDate(activity.date)} at {activity.check_in}
                                                 </p>
@@ -285,34 +380,54 @@ export default function Admin({ stats, recent_activity, low_leave_balance }) {
                 {/* Low Leave Balance Alert */}
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200 bg-yellow-50">
-                        <div className="flex items-center">
-                            <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600 mr-2" />
-                            <h3 className="text-lg font-semibold text-yellow-900">
-                                Low Leave Balance
-                            </h3>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                                <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600 mr-2" />
+                                <h3 className="text-lg font-semibold text-yellow-900">
+                                    Low Leave Balance
+                                </h3>
+                            </div>
+                            <span className="text-xs text-yellow-700">
+                                {low_leave_balance.length} employees
+                            </span>
                         </div>
                     </div>
-                    <div className="divide-y divide-gray-200">
+                    <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
                         {low_leave_balance.length > 0 ? (
-                            low_leave_balance.map((employee) => (
-                                <div key={employee.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-                                    <div className="flex items-center justify-between">
-                                        <Link
-                                            href={`/employees/${employee.id}`}
-                                            className="text-sm font-medium text-gray-900 hover:underline"
-                                        >
-                                            {employee.name}
-                                        </Link>
-                                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                                            employee.leave_balance === 0 ? 'bg-red-100 text-red-800' :
-                                            employee.leave_balance === 1 ? 'bg-orange-100 text-orange-800' :
+                            low_leave_balance.map((employee) => {
+                                const percentage = employee.annual_leave_quota > 0
+                                    ? Math.round((employee.leave_balance / employee.annual_leave_quota) * 100)
+                                    : 0;
+                                return (
+                                    <div key={employee.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <Link
+                                                href={`/employees/${employee.id}`}
+                                                className="text-sm font-medium text-gray-900 hover:underline"
+                                            >
+                                                {employee.name}
+                                            </Link>
+                                            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                                                employee.leave_balance === 0 ? 'bg-red-100 text-red-800' :
+                                                employee.leave_balance === 1 ? 'bg-orange-100 text-orange-800' :
                                             'bg-yellow-100 text-yellow-800'
                                         }`}>
-                                            {employee.leave_balance} {employee.leave_balance === 1 ? 'day' : 'days'} left
+                                            {employee.leave_balance} / {employee.annual_leave_quota}
                                         </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2">
+                                            <div
+                                                className={`h-2 rounded-full transition-all ${
+                                                    percentage === 0 ? 'bg-red-600' :
+                                                    percentage < 15 ? 'bg-orange-500' : 'bg-yellow-500'
+                                                }`}
+                                                style={{ width: `${Math.max(5, percentage)}%` }}
+                                            ></div>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">{percentage}% remaining</p>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         ) : (
                             <div className="px-6 py-8 text-center text-gray-500">
                                 All employees have sufficient leave balance
