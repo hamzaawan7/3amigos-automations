@@ -82,3 +82,22 @@ jobs:
             echo "Laravel Scheduler configured successfully!"
           EOF
 
+      - name: Setup SSL Certificate (Let's Encrypt)
+        run: |
+          sshpass -p 'Timbuktu123@@@' ssh -o StrictHostKeyChecking=no g0mbqxoz5uaj@208.109.173.77 << 'EOF'
+            # Check if certbot is installed
+            if ! command -v certbot &> /dev/null; then
+                echo "Certbot not found. Please install certbot first."
+                echo "Installation instructions will be provided in output."
+                exit 0
+            fi
+
+            # Note: SSL certificate generation requires domain name
+            # This is a placeholder - actual certificate generation needs to be done manually
+            echo "SSL Certificate Setup:"
+            echo "To generate SSL certificate, run manually on server:"
+            echo "sudo certbot --apache -d yourdomain.com -d www.yourdomain.com"
+            echo "Or for webroot:"
+            echo "sudo certbot certonly --webroot -w /home/g0mbqxoz5uaj/public_html/portal/public -d yourdomain.com"
+          EOF
+
