@@ -41,20 +41,22 @@ export default function Dashboard({ employee, stats, recent_attendances, rewards
                 <p className="mt-2 text-sm text-gray-600">
                     {company?.name || '3Amigos'} Attendance Dashboard
                 </p>
-                <p className="mt-1 text-sm font-medium" style={{
-                    color: stats.checked_in_today ? '#10b981' :
-                           stats.wfh_pending_tasks ? '#f59e0b' : '#ef4444'
-                }}>
-                    {stats.checked_in_today ? (
-                        stats.check_in_type === 'office' ?
-                            `✓ Checked in (Office) at ${stats.today_check_in_time}` :
-                            `✓ Checked in (WFH) at ${stats.today_check_in_time} - Tasks submitted`
-                    ) : stats.wfh_pending_tasks ? (
-                        `⏰ Checked in (WFH) at ${stats.today_check_in_time} - Tasks pending`
-                    ) : (
-                        '⚠ You haven\'t checked in today'
-                    )}
-                </p>
+                {(stats.checked_in_today || stats.wfh_pending_tasks || stats.show_attendance_warning) && (
+                    <p className="mt-1 text-sm font-medium" style={{
+                        color: stats.checked_in_today ? '#10b981' :
+                               stats.wfh_pending_tasks ? '#f59e0b' : '#ef4444'
+                    }}>
+                        {stats.checked_in_today ? (
+                            stats.check_in_type === 'office' ?
+                                `✓ Checked in (Office) at ${stats.today_check_in_time}` :
+                                `✓ Checked in (WFH) at ${stats.today_check_in_time} - Tasks submitted`
+                        ) : stats.wfh_pending_tasks ? (
+                            `⏰ Checked in (WFH) at ${stats.today_check_in_time} - Tasks pending`
+                        ) : (
+                            '⚠ You haven\'t checked in today'
+                        )}
+                    </p>
+                )}
             </div>
 
             {/* Today's Status Banner */}
