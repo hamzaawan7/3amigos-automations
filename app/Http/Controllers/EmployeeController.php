@@ -139,8 +139,21 @@ class EmployeeController extends Controller
                 'annual_leave_quota' => $employee->annual_leave_quota,
                 'current_streak' => $employee->current_streak,
                 'longest_streak' => $employee->longest_streak,
+                'salary' => $employee->salary,
+                'salary_type' => $employee->salary_type,
+                'currency' => $employee->currency,
             ],
             'attendances' => $attendances,
+            'activeLoan' => $employee->activeLoan ? [
+                'id' => $employee->activeLoan->id,
+                'total_amount' => $employee->activeLoan->total_amount,
+                'monthly_deduction' => $employee->activeLoan->monthly_deduction,
+                'amount_paid' => $employee->activeLoan->amount_paid,
+                'remaining_amount' => $employee->activeLoan->remaining_amount,
+                'currency' => $employee->activeLoan->currency,
+                'loan_date' => $employee->activeLoan->loan_date,
+                'progress_percentage' => $employee->activeLoan->progress_percentage,
+            ] : null,
             'canManageAttendance' => $user->is_admin,
         ]);
     }

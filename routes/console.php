@@ -18,6 +18,11 @@ Schedule::command('milestones:check')
     ->dailyAt('23:59')
     ->weekdays();
 
+// Process loan deductions on 25th of every month at 12:01 AM
+Schedule::command('loans:process-deductions')
+    ->timezone(config('attendance.timezone', 'Asia/Karachi'))
+    ->monthlyOn(25, '00:01');
+
 // Yearly leave reset Sept 1 at 00:10
 Schedule::command('leave:reset-yearly')
     ->timezone(config('attendance.timezone', 'Asia/Karachi'))

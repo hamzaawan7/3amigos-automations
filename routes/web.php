@@ -73,6 +73,10 @@ Route::middleware('auth')->group(function () {
         // Attendance Management
         Route::post('/admin/attendance/mark-late', [\App\Http\Controllers\Admin\AttendanceManagementController::class, 'markAsLate'])->name('admin.attendance.mark-late');
         Route::post('/admin/attendance/mark-on-time', [\App\Http\Controllers\Admin\AttendanceManagementController::class, 'markAsOnTime'])->name('admin.attendance.mark-on-time');
+
+        // Loan Management
+        Route::post('/employees/{employee}/loans', [\App\Http\Controllers\Admin\LoanController::class, 'store'])->name('employees.loans.store');
+        Route::delete('/loans/{loan}', [\App\Http\Controllers\Admin\LoanController::class, 'destroy'])->name('loans.destroy');
     });
 
     // Admin routes (for now, all authenticated users can access)

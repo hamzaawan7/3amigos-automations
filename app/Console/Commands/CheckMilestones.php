@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Employee;
 use Illuminate\Console\Command;
 
 class CheckMilestones extends Command
@@ -26,14 +27,14 @@ class CheckMilestones extends Command
         $this->info('Checking employee milestones...');
 
         // Only check full-time permanent employees
-        $employees = \App\Models\Employee::where('employment_type', 'full_time')
+        $employees = Employee::where('employment_type', 'full_time')
             ->where('employment_status', 'permanent')
             ->get();
 
         $milestones = \App\Models\PerformanceMilestone::where('is_active', true)->get();
 
         $rewardsAwarded = 0;
-        $skippedCount = \App\Models\Employee::where('employment_type', '!=', 'full_time')
+        $skippedCount = Employee::where('employment_type', '!=', 'full_time')
             ->orWhere('employment_status', '!=', 'permanent')
             ->count();
 

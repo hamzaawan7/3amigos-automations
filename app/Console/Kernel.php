@@ -26,6 +26,11 @@ class Kernel extends ConsoleKernel
             ->dailyAt('23:59')
             ->weekdays();
 
+        // Process loan deductions on 25th of every month at 12:01 AM
+        $schedule->command('loans:process-deductions')
+            ->timezone('Asia/Karachi')
+            ->monthlyOn(25, '00:01');
+
         // Yearly leave reset Sept 1 at 00:10 Pakistan time
         $schedule->command('leave:reset-yearly')
             ->timezone('Asia/Karachi')

@@ -1,8 +1,114 @@
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { formatDate } from '@/utils/dateFormat';
 import { formatCurrency } from '@/utils/currency';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+
+function LoanCreateForm({ employee }) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        total_amount: '',
+        monthly_deduction: '',
+        loan_date: new Date().toISOString().split('T')[0],
+        currency: employee.currency || 'PKR',
+    });
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        post(route('employees.loans.store', employee.id), {
+            onSuccess: () => reset(),
+        });
+    }
+
+    return (
+        <form onSubmit={handleSubmit} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label htmlFor="total_amount" className="block text-sm font-medium text-gray-700">
+                        Total Loan Amount *
+                    </label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="1"
+                        id="total_amount"
+                        value={data.total_amount}
+                        onChange={e => setData('total_amount', e.target.value)}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        required
+                    />
+                    {errors.total_amount && <div className="text-red-500 text-sm mt-1">{errors.total_amount}</div>}
+                </div>
+
+                <div>
+                    <label htmlFor="monthly_deduction" className="block text-sm font-medium text-gray-700">
+                        Monthly Deduction *
+                    </label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="1"
+                        id="monthly_deduction"
+                        value={data.monthly_deduction}
+                        onChange={e => setData('monthly_deduction', e.target.value)}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        required
+                    />
+                    {errors.monthly_deduction && <div className="text-red-500 text-sm mt-1">{errors.monthly_deduction}</div>}
+                </div>
+
+                <div>
+                    <label htmlFor="loan_date" className="block text-sm font-medium text-gray-700">
+                        Loan Date *
+                    </label>
+                    <input
+                        type="date"
+                        id="loan_date"
+                        value={data.loan_date}
+                        onChange={e => setData('loan_date', e.target.value)}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        required
+                    />
+                    {errors.loan_date && <div className="text-red-500 text-sm mt-1">{errors.loan_date}</div>}
+                </div>
+
+                <div>
+                    <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
+                        Currency *
+                    </label>
+                    <select
+                        id="currency"
+                        value={data.currency}
+                        onChange={e => setData('currency', e.target.value)}
+                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                    >
+                        <option value="PKR">PKR (Rs)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                    </select>
+                    {errors.currency && <div className="text-red-500 text-sm mt-1">{errors.currency}</div>}
+                </div>
+            </div>
+
+            <div className="mt-4 bg-blue-50 border-l-4 border-blue-400 p-3">
+                <p className="text-sm text-blue-700">
+                    <strong>Note:</strong> Loan deductions will be processed automatically on the 25th of every month.
+                </p>
+            </div>
+
+            <div className="mt-4">
+                <button
+                    type="submit"
+                    disabled={processing}
+                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                >
+                    {processing ? 'Creating...' : 'Create Loan'}
+                </button>
+            </div>
+        </form>
+    );
+}
 
 export default function Edit({ employee, activeLoan }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -247,7 +353,7 @@ export default function Edit({ employee, activeLoan }) {
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">Remaining Amount</label>
                                                     <p className="mt-1 text-lg font-semibold text-orange-600">
-                                                        {activeLoan.currency} {parseFloat(activeLoan.remaining_amount).toLocaleString()}
+                                                        {formatCurrency(activeLoan.currency, activeLoan.remaining_amount)}
                                                     </p>
                                                 </div>
 
@@ -287,6 +393,30 @@ export default function Edit({ employee, activeLoan }) {
                                                 Contact administrator to modify loan details.
                                             </p>
                                         </div>
+
+                                        {/* Complete Loan Button */}
+                                        <div className="mt-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (confirm('Mark this loan as completed? This will close the loan.')) {
+                                                        router.delete(route('loans.destroy', activeLoan.id));
+                                                    }
+                                                }}
+                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                                            >
+                                                Mark Loan as Completed
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Create New Loan */}
+                                {!activeLoan && (
+                                    <div className="border-t border-gray-200 pt-6 mt-6">
+                                        <h4 className="text-md font-medium text-gray-900 mb-4">💰 Create New Loan</h4>
+
+                                        <LoanCreateForm employee={employee} />
                                     </div>
                                 )}
                             </div>
