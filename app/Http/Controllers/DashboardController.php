@@ -81,10 +81,25 @@ class DashboardController extends Controller
             ->where('date', now()->toDateString())
             ->first();
 
+        // Check if it's weekend and if there's a work exception
+        $today = now()->toDateString();
+        $isWeekend = now()->dayOfWeek === 0 || now()->dayOfWeek === 6; // Sunday = 0, Saturday = 6
+        $hasWorkException = false;
+
+        if ($isWeekend) {
+            $hasWorkException = \App\Models\WorkException::where('employee_id', $employee->id)
+                ->where('compensate_date', $today)
+                ->where('status', 'approved')
+                ->exists();
+        }
+
         // Determine check-in status
         $checkedInToday = $todayAttendance && $todayAttendance->check_in &&
                          (!$todayAttendance->is_wfh || $todayAttendance->task_submitted);
         $wfhPendingTasks = $todayAttendance && $todayAttendance->is_wfh && !$todayAttendance->task_submitted;
+
+        // Don't show attendance warning on weekends unless there's an approved work exception
+        $showAttendanceWarning = !$isWeekend || $hasWorkException;
 
         $checkInTime = null;
         $checkInType = null;
@@ -181,6 +196,9 @@ class DashboardController extends Controller
                 'today_check_in_time' => $checkInTime,
                 'check_in_type' => $checkInType,
                 'wfh_pending_tasks' => $wfhPendingTasks,
+                'show_attendance_warning' => $showAttendanceWarning,
+                'is_weekend' => $isWeekend,
+                'has_work_exception' => $hasWorkException,
             ],
             'recent_attendances' => $employee->attendances()
                 ->where('date', '<=', now())

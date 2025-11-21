@@ -81,7 +81,7 @@ export default function Dashboard({ employee, stats, recent_attendances, rewards
                         </a>
                     </div>
                 </div>
-            ) : !stats.checked_in_today && (
+            ) : !stats.checked_in_today && stats.show_attendance_warning && (
                 <div className="mt-6 bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-4 rounded-r-lg shadow-sm">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center">
