@@ -70,3 +70,15 @@ jobs:
             php artisan view:cache
           EOF
 
+      - name: Setup Laravel Scheduler (Cron)
+        run: |
+          sshpass -p 'Timbuktu123@@@' ssh -o StrictHostKeyChecking=no g0mbqxoz5uaj@208.109.173.77 << 'EOF'
+            # Remove any existing Laravel scheduler entries
+            crontab -l 2>/dev/null | grep -v "public_html/portal" | crontab -
+
+            # Add new Laravel scheduler entry
+            (crontab -l 2>/dev/null; echo "* * * * * cd /home/g0mbqxoz5uaj/public_html/portal && /usr/bin/php artisan schedule:run >> /dev/null 2>&1") | crontab -
+
+            echo "Laravel Scheduler configured successfully!"
+          EOF
+
