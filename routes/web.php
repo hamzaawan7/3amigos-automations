@@ -7,7 +7,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\WorkFromHomeController;
 use App\Http\Controllers\WorkExceptionController;
 use Inertia\Inertia;
 
