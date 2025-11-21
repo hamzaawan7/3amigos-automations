@@ -85,6 +85,12 @@ class AttendanceController extends Controller
             ];
         }
 
+        // Check if employee has approved work exception for today (for weekend work)
+        $hasWorkException = \App\Models\WorkException::where('employee_id', $employee->id)
+            ->where('worked_date', $today)
+            ->where('status', 'approved')
+            ->exists();
+
         return Inertia::render('Attendance/Index', [
             'employee' => [
                 'id' => $employee->id,
@@ -97,6 +103,7 @@ class AttendanceController extends Controller
             'todayAttendance' => $checkInInfo,
             'recentAttendances' => $recentAttendances,
             'attendanceStats' => $employee->getAttendanceStats(),
+            'hasWorkException' => $hasWorkException,
         ]);
     }
 
@@ -110,8 +117,18 @@ class AttendanceController extends Controller
 
         // Check if it's weekend (Saturday or Sunday)
         $dayOfWeek = now()->dayOfWeek;
+        $today = now()->toDateString();
+
         if ($dayOfWeek === Carbon::SATURDAY || $dayOfWeek === Carbon::SUNDAY) {
-            return back()->with('error', 'Attendance cannot be marked on weekends.');
+            // Check if employee has approved work exception for today
+            $hasWorkException = \App\Models\WorkException::where('employee_id', $employee->id)
+                ->where('worked_date', $today)
+                ->where('status', 'approved')
+                ->exists();
+
+            if (!$hasWorkException) {
+                return back()->with('error', 'Attendance cannot be marked on weekends. Please request a work exception if you need to work on weekends.');
+            }
         }
 
         // Check if it's after 11 AM

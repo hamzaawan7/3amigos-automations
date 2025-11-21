@@ -4,7 +4,7 @@ import { formatDateWithDay } from '@/utils/dateFormat';
 import { CheckCircleIcon, ClockIcon, CalendarIcon, XCircleIcon, HomeIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 
-export default function Index({ employee, todayAttendance, recentAttendances, attendanceStats }) {
+export default function Index({ employee, todayAttendance, recentAttendances, attendanceStats, hasWorkException }) {
     const { data, setData, post, processing, errors } = useForm({
         daily_report: '',
         attendance_type: 'office', // 'office' or 'wfh'
@@ -241,7 +241,7 @@ export default function Index({ employee, todayAttendance, recentAttendances, at
                     ) : (
                         // Mark Attendance - Office or WFH
                         <div className="p-6">
-                            {isWeekend ? (
+                            {isWeekend && !hasWorkException ? (
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
                                     <svg className="h-16 w-16 text-blue-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -252,6 +252,9 @@ export default function Index({ employee, todayAttendance, recentAttendances, at
                                     </p>
                                     <p className="text-blue-600 text-sm mt-2">
                                         Enjoy your weekend! 🎉
+                                    </p>
+                                    <p className="text-blue-700 text-sm mt-4 font-medium">
+                                        Need to work on weekends? Request a Work Exception first.
                                     </p>
                                 </div>
                             ) : isBeforeElevenAM ? (
@@ -266,6 +269,25 @@ export default function Index({ employee, todayAttendance, recentAttendances, at
                                 </div>
                             ) : (
                                 <div>
+                                    {/* Work Exception Notice for Weekend */}
+                                    {isWeekend && hasWorkException && (
+                                        <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                                            <div className="flex">
+                                                <div className="flex-shrink-0">
+                                                    <CheckCircleIcon className="h-5 w-5 text-green-400" />
+                                                </div>
+                                                <div className="ml-3">
+                                                    <p className="text-sm font-medium text-green-800">
+                                                        Work Exception Approved
+                                                    </p>
+                                                    <p className="text-sm text-green-700 mt-1">
+                                                        You are authorized to mark attendance today (weekend work).
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Attendance Type Tabs */}
                                     <div className="border-b border-gray-200 mb-8">
                                         <nav className="-mb-px flex space-x-8">
