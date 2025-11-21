@@ -41,11 +41,23 @@ jobs:
         run: |
           sshpass -p 'Timbuktu123@@@' rsync -avz --delete \
             --exclude='.git' \
+            --exclude='.git/' \
             --exclude='node_modules' \
+            --exclude='node_modules/' \
             --exclude='tests' \
-            --exclude='storage/logs/*' \
+            --exclude='tests/' \
+            --exclude='storage/logs/' \
             --exclude='.env' \
+            --exclude='.env.*' \
             --exclude='.github' \
+            --exclude='.github/' \
+            --exclude='*.sqlite' \
+            --exclude='database.sqlite' \
+            --exclude='.gitignore' \
+            --exclude='.editorconfig' \
+            --exclude='phpunit.xml' \
+            --exclude='README-GITHUB.md' \
+            --exclude='.github-secrets-setup.txt' \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ g0mbqxoz5uaj@208.109.173.77:public_html/portal/
 
