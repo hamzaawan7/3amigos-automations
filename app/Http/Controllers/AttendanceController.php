@@ -87,7 +87,7 @@ class AttendanceController extends Controller
 
         // Check if employee has approved work exception for today (for weekend work)
         $hasWorkException = \App\Models\WorkException::where('employee_id', $employee->id)
-            ->where('compensation_date', $today)
+            ->where('compensate_date', $today)
             ->where('status', 'approved')
             ->exists();
 
@@ -122,7 +122,7 @@ class AttendanceController extends Controller
         if ($dayOfWeek === Carbon::SATURDAY || $dayOfWeek === Carbon::SUNDAY) {
             // Check if employee has approved work exception for today
             $hasWorkException = \App\Models\WorkException::where('employee_id', $user->employee->id)
-                ->where('compensation_date', $today)
+                ->where('compensate_date', $today)
                 ->where('status', 'approved')
                 ->exists();
 
